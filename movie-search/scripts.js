@@ -32,7 +32,7 @@ $(function() {
 
 					for (i = 0; response.results.Search.length > i; i++) {
 						tbodyEl.append('\
-							<li>' + response.results.Search[i].Title + '</li>\
+							<li>' + response.results.Search[i].Title + ' - ' + response.results.Search[i].Year + '</li>\
 						');
 					};
 				}
