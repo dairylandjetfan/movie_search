@@ -5,32 +5,44 @@ var http = require('http');
 
 var PORT = process.env.PORT || 3000;
 
+function getJSON(requestURL, callback) {
+
+    http.request(requestURL, function(res){
+
+        var body = '';
+        var results = '';
+
+        res.on('data', function(chunk) {
+            body += chunk;
+        });
+
+        res.on('end', function(){
+            results = JSON.parse(body);
+            callback(null, results);
+        });
+
+        res.on('error', callback);
+
+    })
+    .on('error', callback)
+    .end();
+}
+
 app.use(express.static(__dirname));
 app.use(bodyParser.json());
 
-app.post('/movies', function(req, res) {
+app.get('/movies/:searchInput', function(req, res) {
 
-	var requestURL = 'http://www.omdbapi.com/?s=' + req.body.searchText + '&apikey=41f06725';
+    var requestURL = 'http://www.omdbapi.com/?s=' + req.params.searchInput + '&type=movie&apikey=41f06725';
 
-    var movies = '';
+    getJSON(requestURL, function(err, results) {
 
-	http.request(requestURL, function(res){
+        if (err) {
+            console.log('Error occured while submitting request.');
+        }
 
-		var body = '';
-
-    	res.on('data', function(chunk) {
-    		body += chunk;
-    	});
-
-    	res.on('end', function(){
-    		var parsed = JSON.parse(body);
-
-    		movies: parsed.Titles
-    	});
-
-    }).end();
-
-	res.send({ movies : movies });
+        res.send({ results });
+    })
 });
 
 app.listen(PORT, function() {
